@@ -330,7 +330,7 @@ exports.postGetToken=( req,res,next) =>{
                  },
                  'Smart-Pet-Feeder-2021',
 
-                 {expiresIn: '1h'}
+                 {expiresIn: '5s'}
              );
 
              res.status(201).json({
