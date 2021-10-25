@@ -23,6 +23,16 @@ app.use((req, res, next) => {
     next();
 });
 
+
+// HTTP redirect
+app.use((req, res, next) => {
+    if (req.protocol !== 'https') {
+        return res.status(403).send({message: 'SSL required'});
+    }
+    // allow the request to continue
+    next();
+});
+
 app.use("/auth/user", authUserRoutes);
 
 app.use("/auth/admin", authAdminRoutes);
@@ -42,10 +52,8 @@ mongoose.connect('mongodb+srv://Shenal:SmartPetFeeder2021@cluster0.y3bkj.mongodb
 
 
         app.listen(port);
-        console.log("Connected Successfully!");
 
 
     })
     .catch(err => {
-        console.log("Database Connections Failed");
     })
