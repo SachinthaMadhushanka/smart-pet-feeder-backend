@@ -11,14 +11,6 @@ const authAdminRoutes = require("./routes/admin");
 
 const app = express();
 
-// HTTP redirect
-app.use((req, res, next) => {
-    if (req.protocol !== 'https') {
-        return res.status(403).send({message: 'SSL required'});
-    }
-    // allow the request to continue
-    next();
-});
 
 app.use(bodyParser.json());
 app.set('view engine', 'ejs');
@@ -30,7 +22,6 @@ app.use((req, res, next) => {
 
     next();
 });
-
 
 
 app.use("/auth/user", authUserRoutes);
