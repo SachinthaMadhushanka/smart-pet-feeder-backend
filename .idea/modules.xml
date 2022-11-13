@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/BackEnd.iml" filepath="$PROJECT_DIR$/.idea/BackEnd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Smart Pet Feeder Frontend/.idea/WebsiteFrontend.iml" filepath="$PROJECT_DIR$/../Smart Pet Feeder Frontend/.idea/WebsiteFrontend.iml" />
     </modules>
   </component>
 </project>

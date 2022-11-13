@@ -172,9 +172,12 @@ exports.login = (req, res, next) => {
     const password = req.body.password;
     let loadUser;
 
+    console.log(email, password);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()){
         const message = errors.array()[0].msg;
+
         const error = new Error(message);
         error.statusCode = 422;
         error.data = errors.array();
@@ -195,6 +198,7 @@ exports.login = (req, res, next) => {
                 throw error;
             }
             loadUser = user;
+
             return bcrypt.compare(password, user.password);
         })
         .then(isEqual => {
@@ -205,12 +209,14 @@ exports.login = (req, res, next) => {
             }
 
 
+
             loadUser.secret = authenticator.generateSecret(32);
             return loadUser.save();
 
         })
         .then(result => {
             const otp = totp.generate(result.secret);
+            // console.log(otp);
             return ejs.renderFile(path.join(__dirname, '..', '/views/email.ejs'), {
                 "LINK": "",
                 "OTP": otp,
@@ -224,7 +230,7 @@ exports.login = (req, res, next) => {
                 service: 'gmail',
                 auth: {
                     user: 'smartpetfeederteam@gmail.com',
-                    pass: 'SmartPetFeeder2021'
+                    pass: 'dpvfcnwqpkxcerhn'
                 }
             });
 
@@ -239,6 +245,9 @@ exports.login = (req, res, next) => {
 
         })
         .then(result => {
+
+            // console.log(result);
+
             const oneTimeToken = jwt.sign({
                     userId: loadUser._id
                 },
@@ -252,6 +261,7 @@ exports.login = (req, res, next) => {
             });
         })
         .catch(err => {
+            // console.log(err);
             next(err);
         })
 }
