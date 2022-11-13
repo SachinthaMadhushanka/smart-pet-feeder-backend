@@ -8,8 +8,12 @@
   "description": "This is the main api for the smart pet feeder web application and mobile app.This will interact with frontend (React app and react-native app) and the back end database (MongoDb).",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "dev": "react-scripts start",
+    "start": "serve -s build",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "heroku-postbuild": "npm run build"
   },
   "author": "Shenal Perera - E/17/246",
   "license": "ISC",
