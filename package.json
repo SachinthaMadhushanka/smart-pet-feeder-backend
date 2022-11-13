@@ -9,7 +9,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build && node app.js"
+    "start": "node app.js"
   },
   "author": "Shenal Perera - E/17/246",
   "license": "ISC",
