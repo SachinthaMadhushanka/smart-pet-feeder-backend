@@ -1,4 +1,4 @@
-const {client} = require("../configs/configs");
+const {client, petFeederIdPrev} = require("../configs/configs");
 const PetFeeder = require('../models/pet-feeder');
 const User = require('../models/user');
 const mongoose = require("mongoose");
@@ -8,13 +8,13 @@ const {use} = require("express/lib/router");
 // PetFeeder/Status
 /*
     {
-        "petFeederId": "ffffffffffffff0123456789"
+        "petFeederId": "0123456789"
     }
  */
 exports.onReceivePetFeederStatus = (data) => {
     let dataJson = JSON.parse(data);
 
-    PetFeeder.findById(dataJson.petFeederId)
+    PetFeeder.findById(petFeederIdPrev + dataJson.petFeederId)
         .then(petFeeder => {
 
             petFeeder.status = true;
@@ -32,7 +32,7 @@ exports.onReceivePetFeederStatus = (data) => {
 // PetFeeder/ScheduleStatus
 /*
     {
-        "petFeederId": "ffffffffffffff0123456789",
+        "petFeederId": "0123456789",
         "scheduleId": "6373a9a55dbe7273e74a14a1",
         "status": true
     }
@@ -43,7 +43,7 @@ exports.onReceiveScheduleStatus = (data) => {
     let petFeeder;
     let feed_time;
 
-    PetFeeder.findById(dataJson.petFeederId)
+    PetFeeder.findById(petFeederIdPrev + dataJson.petFeederId)
         .then(fetFeeder => {
             petFeeder = fetFeeder;
             return User.findById(fetFeeder.owner);
@@ -110,7 +110,7 @@ exports.onReceiveScheduleStatus = (data) => {
 exports.onReceiveFillFoods = (data) => {
     let dataJson = JSON.parse(data);
 
-    PetFeeder.findById(dataJson.petFeederId)
+    PetFeeder.findById(petFeederIdPrev + dataJson.petFeederId)
         .then(petFeeder => {
 
             petFeeder.remainingRounds = 4;

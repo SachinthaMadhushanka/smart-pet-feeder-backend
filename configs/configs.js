@@ -15,6 +15,6 @@ exports.petFeederIdPrev = "ffffffffffffff";
 // exports.API_URL = "http://localhost:8000:";
 exports.API_URL = "https://smart-pet-feeder-backend.herokuapp.com";
 
-let mqtt_client = mqtt.connect("mqtt://test.mosquitto.org", {clientId:"mqtt-tester12345"});
+let mqtt_client = mqtt.connect("mqtt://test.mosquitto.org", {clientId:"mqtt-tester12345678"});
 
 exports.client = mqtt_client;
