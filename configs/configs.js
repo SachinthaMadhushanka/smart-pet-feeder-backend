@@ -39,13 +39,13 @@ const resetPetFeederON = () => {
 
 let timer = setInterval(() => {
     resetPetFeederON(petFeederId);
-}, 2 * 60 * 1000);
+}, timout * 60 * 1000);
 
 exports.resetTimer = () => {
     clearInterval(timer);
     timer = setInterval(() => {
         resetPetFeederON(petFeederId);
-    }, 2 * 60 * 1000);
+    }, timout * 60 * 1000);
 }
 
 

@@ -63,7 +63,7 @@ exports.login = (req,res,next) =>{
                 service: 'gmail',
                 auth: {
                     user: 'smartpetfeederteam@gmail.com',
-                    pass: 'SmartPetFeeder2021'
+                    pass: 'dpvfcnwqpkxcerhn'
                 }
             });
 
