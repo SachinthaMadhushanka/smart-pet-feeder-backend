@@ -24,9 +24,12 @@ const ejs = require('ejs');
 
 const path = require('path');
 
-const IOT = require('../functions/IOT')
 
-
+const configs = require('../configs/configs')
+const {use} = require("express/lib/router");
+const mqttFunctions = require("../functions/MqttFunctions");
+const json = require("body-parser/lib/types/json");
+const {petFeederIdPrev} = require("../configs/configs");
 totp.options = {step: 300}
 
 
@@ -49,6 +52,7 @@ exports.signUp = (req, res, next) => {
     const password = req.body.password;
     const name = req.body.name;
     const phoneNumber = req.body.phoneNumber;
+    const petFeederId = req.body.petFeederId;
     let feederId;
     bcrypt.hash(password, 12)
         .then(hashedPw => {
@@ -64,6 +68,8 @@ exports.signUp = (req, res, next) => {
         .then(result => {
             loadUser = result;
             const petFeeder = new PetFeeder({
+                _id: new mongoose.Types.ObjectId(petFeederIdPrev + petFeederId),
+
                 status: true,
                 owner: result._id
             });
@@ -88,7 +94,7 @@ exports.signUp = (req, res, next) => {
         .then(result => {
             loadUser = result;
 
-            const link = "https://smart-pet-feeder.herokuapp.com/auth/user/verify_account/" + result.token;
+            const link = configs.API_URL + '/auth/user/verify_account/' + result.token;
             return ejs.renderFile(path.join(__dirname, '..', '/views/email.ejs'), {
                 "LINK": link,
                 "OTP": "",
@@ -132,7 +138,6 @@ exports.signUp = (req, res, next) => {
 exports.postVerifyAccount = (req, res, next) => {
     const token = req.params.token;
 
-
     User.findById(req.userId)
         .then(user => {
             if (!user) {
@@ -172,10 +177,9 @@ exports.login = (req, res, next) => {
     const password = req.body.password;
     let loadUser;
 
-    console.log(email, password);
 
     const errors = validationResult(req);
-    if (!errors.isEmpty()){
+    if (!errors.isEmpty()) {
         const message = errors.array()[0].msg;
 
         const error = new Error(message);
@@ -209,14 +213,12 @@ exports.login = (req, res, next) => {
             }
 
 
-
             loadUser.secret = authenticator.generateSecret(32);
             return loadUser.save();
 
         })
         .then(result => {
             const otp = totp.generate(result.secret);
-            // console.log(otp);
             return ejs.renderFile(path.join(__dirname, '..', '/views/email.ejs'), {
                 "LINK": "",
                 "OTP": otp,
@@ -246,7 +248,6 @@ exports.login = (req, res, next) => {
         })
         .then(result => {
 
-            // console.log(result);
 
             const oneTimeToken = jwt.sign({
                     userId: loadUser._id
@@ -261,7 +262,6 @@ exports.login = (req, res, next) => {
             });
         })
         .catch(err => {
-            // console.log(err);
             next(err);
         })
 }
@@ -343,11 +343,7 @@ exports.postGetToken = (req, res, next) => {
                 error.statusCode = 403;
                 throw error;
             }
-            // if (! user.refreshTokens.includes(refreshToken)){
-            //     const error = new Error("You are not authenticated");
-            //     error.statusCode = 403;
-            //     throw error;
-            // }
+
             const token = jwt.sign({
                     email: user.email,
                     userId: user._id.toString()
@@ -382,16 +378,19 @@ exports.postSchedule = (req, res, next) => {
 
     let user;
     let scheduleId = req.body._id;
+
+
     let operation = "Update";
     if (!scheduleId) {
-        operation = "Insert"    ;
+        operation = "Insert";
         scheduleId = new mongoose.Types.ObjectId();
     }
     const schedule = new ActiveSchedule({
         _id: scheduleId,
         title: req.body.title,
         date_time: req.body.date_time,
-        status: req.body.status
+        status: req.body.status,
+        feed_now: req.body.feed_now
     })
 
     User.findById(req.userId)
@@ -404,8 +403,6 @@ exports.postSchedule = (req, res, next) => {
             user = owner;
             const index = owner.ActiveSchedules.findIndex((schedules) => {
                 return schedules._id.toString() === scheduleId;
-
-
             });
 
             if (owner.ActiveSchedules.length < 4) {
@@ -429,7 +426,31 @@ exports.postSchedule = (req, res, next) => {
         .then(result => {
 
             res.status(201).json({message: 'Scheduled Created!', scheduleId: schedule._id});
-            IOT.publishSchedules(operation, schedule._id, schedule.title, schedule.date_time);
+
+            if (!req.body.feed_now) {
+
+                let required_schedules = []
+                for (let i = 0; i < user.ActiveSchedules.length; i++) {
+                    if (user.ActiveSchedules[i].feed_now === false) {
+                        let temp = {
+                            'schedule_id': user.ActiveSchedules[i]._id.toString(),
+                            'date_time': user.ActiveSchedules[i].date_time,
+                        }
+
+                        required_schedules.push(temp);
+                    }
+                }
+                mqttFunctions.publishSchedules(JSON.stringify(required_schedules));
+
+            } else {
+
+                let temp = {
+                    'schedule_id': scheduleId.toString(),
+                    'date_time': req.body.date_time,
+                }
+                mqttFunctions.publishFeedNow(JSON.stringify(temp));
+
+            }
 
         })
         .catch(err => {
@@ -440,6 +461,7 @@ exports.postSchedule = (req, res, next) => {
 
 
 exports.postDeleteSchedule = (req, res, next) => {
+
     let scheduleId = req.body._id;
 
     let user_;
@@ -458,10 +480,9 @@ exports.postDeleteSchedule = (req, res, next) => {
 
                 if (index < 4 && index >= 0) {
                     user.ActiveSchedules.splice(index, 1);
-                }
-                else{
+                } else {
                     const error = new Error("Schedule Not found!");
-                    error.statusCode =404;
+                    error.statusCode = 404;
                     throw error;
                 }
                 return user.save();
@@ -469,7 +490,19 @@ exports.postDeleteSchedule = (req, res, next) => {
         })
         .then(result => {
             res.status(200).json({message: "Schedule deactivated"});
-            IOT.publishSchedules("Delete", scheduleId);
+
+            let required_schedules = []
+            for (let i = 0; i < user_.ActiveSchedules.length; i++) {
+                if (user_.ActiveSchedules[i].feed_now === false) {
+                    let temp = {
+                        'schedule_id': user_.ActiveSchedules[i]._id.toString(),
+                        'date_time': user_.ActiveSchedules[i].date_time,
+                    }
+
+                    required_schedules.push(temp);
+                }
+            }
+            mqttFunctions.publishSchedules(JSON.stringify(required_schedules));
 
         })
         .catch(err => {
@@ -481,7 +514,7 @@ exports.postDeleteSchedule = (req, res, next) => {
 exports.postFeedback = (req, res, next) => {
     let feedback_id;
     let errors = validationResult(req);
-    if (!errors.isEmpty()){
+    if (!errors.isEmpty()) {
         const message = errors.array()[0].msg;
         const error = new Error(message);
         error.statusCode = 422;
@@ -522,7 +555,7 @@ exports.postFeedback = (req, res, next) => {
 exports.postMarkedAsRead = (req, res, next) => {
     let notificationId = req.body._id;
 
-    if (!notificationId || notificationId ===""){
+    if (!notificationId || notificationId === "") {
         const error = new Error("Error Occurred");
         error.statusCode = 422;
         throw error;
@@ -552,7 +585,7 @@ exports.postMarkedAsRead = (req, res, next) => {
             res.status(201).json({_id: result._id, message: "Successful"})
         })
 
-        .catch(err =>{
+        .catch(err => {
             next(err);
         })
     ;
@@ -581,6 +614,7 @@ exports.getStatus = (req, res, next) => {
             res.status(200).json({
                 battery: feeder.battery,
                 status: feeder.status,
+                lastFeedTime: feeder.lastFeedTime,
                 remainingRounds: feeder.remainingRounds
             })
         })
@@ -614,23 +648,41 @@ exports.getActiveSchedules = (req, res, next) => {
 
 exports.getScheduleHistory = (req, res, next) => {
     User.findById(req.userId)
-        .populate('ScheduleHistory')
         .then(user => {
+            if (!user) {
+                const error = new Error("User Not found")
+                error.statusCode = 404
+                throw error
+            }
             if (!user.isActive) {
                 const error = new Error("Please verify the account");
                 error.statusCode = 401;
                 throw error;
             }
-            if (!user.ScheduleHistory) {
-                const error = new Error("Something went wrong");
-                error.statusCode = 500;
-                throw error;
-            }
-            res.status(201).json(user.ScheduleHistory);
+
+            res.status(200).json(user.ScheduleHistory);
+
         })
-        .catch(err => {
-            next(err);
-        })
+        .catch(err => next(err));
+
+    // User.findById(req.userId)
+    //     .populate('ScheduleHistory')
+    //     .then(user => {
+    //         if (!user.isActive) {
+    //             const error = new Error("Please verify the account");
+    //             error.statusCode = 401;
+    //             throw error;
+    //         }
+    //         if (!user.ScheduleHistory) {
+    //             const error = new Error("Something went wrong");
+    //             error.statusCode = 500;
+    //             throw error;
+    //         }
+    //         res.status(201).json(user.ScheduleHistory);
+    //     })
+    //     .catch(err => {
+    //         next(err);
+    //     })
 
 }
 
@@ -651,3 +703,5 @@ exports.getNotifications = (req, res, next) => {
             next(err);
         })
 }
+
+

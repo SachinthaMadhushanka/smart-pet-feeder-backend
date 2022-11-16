@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const scheduleSchema = new Schema({
+const scheduleHistorySchema = new Schema({
 
     title:{
         type:String,
@@ -18,12 +18,6 @@ const scheduleSchema = new Schema({
         required:false,
         default:false
     },
-    feed_now:{
-        type:Boolean,
-        required:true,
-        default:false
-
-    },
     userId:{
         type:Schema.Types.ObjectId,
         ref:'User',
@@ -39,4 +33,4 @@ const scheduleSchema = new Schema({
 
 });
 
-module.exports = mongoose.model("ActiveSchedule", scheduleSchema);
+module.exports = mongoose.model("ScheduleHistory", scheduleHistorySchema);

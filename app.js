@@ -8,12 +8,12 @@ const authUserRoutes = require("./routes/user");
 
 const authAdminRoutes = require("./routes/admin");
 
-const mqtt = require('mqtt');
 const configs = require("./configs/configs")
+const mqtt_functions = require("./functions/MqttFunctions");
 
-const client = mqtt.connect(configs.mqtt_options)
+const client = configs.client;
 
-const mqtt_functions = require("./functions/MqttFunctions")
+// client.publish('my/test/topic', 'Hello');
 
 // setup the callbacks
 client.on('connect', function () {
@@ -24,21 +24,21 @@ client.on('error', function (error) {
     console.log(error);
 });
 
-client.on('message',  (topic, message) => {
+client.on('message', (topic, message) => {
     // called each time a message is received
 
 
-    if(topic === "PetFeeder/Status"){
+    if (topic === "PetFeeder/Status") {
         mqtt_functions.onReceivePetFeederStatus(message.toString());
-    }
-
-
-    else if(topic === "PetFeeder/ScheduleStatus"){
+    } else if (topic === "PetFeeder/ScheduleStatus") {
         mqtt_functions.onReceiveScheduleStatus(message.toString());
+    }else if(topic === "PetFeeder/FillFoods"){
+        mqtt_functions.onReceiveFillFoods(message.toString());
     }
 });
 
-client.subscribe(["PetFeeder/Status", "PetFeeder/ScheduleStatus"]);
+
+client.subscribe(["PetFeeder/Status", "PetFeeder/ScheduleStatus", "PetFeeder/FillFoods"]);
 
 
 const app = express();

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const activeScheduleSchema = require('./active-schedules').schema;
+const scheduleHistorySchema = require('./schedule-history').schema;
 
 
 
@@ -35,10 +36,13 @@ const userSchema = new Schema({
     },
     ActiveSchedules:[activeScheduleSchema],
 
-    ScheduleHistory:[
-        {
-        type:Schema.Types.ObjectId ,ref:'ActiveSchedule' ,required:false
-    }],
+    // ScheduleHistory:[
+    //     {
+    //     type:Schema.Types.ObjectId ,ref:'ActiveSchedule' ,required:false
+    // }],
+
+    ScheduleHistory:[scheduleHistorySchema],
+
     notifications:[{
         type:Schema.Types.ObjectId ,
         ref:'Notification',

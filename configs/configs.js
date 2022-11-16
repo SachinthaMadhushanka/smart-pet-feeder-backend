@@ -1,7 +1,20 @@
+const mqtt = require("mqtt");
+const configs = require("./configs");
 exports.mqtt_options = {
-    host: '2456fb38570d4c279d50a0ca728ec5e0.s2.eu.hivemq.cloud',
-    port: 8883,
+    clientId:"mqttjs01",
+
+    // host: 'broker.hivemq.com',
+    port: 1883,
     protocol: 'mqtts',
-    username: 'sachi.lifef@gmail.com',
-    password: 'Sachi2018'
+    // username: 'sachi.lifef@gmail.com',
+    // password: 'Sachi2018'
 }
+
+exports.petFeederIdPrev = "ffffffffffffff";
+
+exports.API_URL = "http://localhost:8000:";
+// export const API_URL = "https://smart-pet-feeder-backend.herokuapp.com";
+
+let mqtt_client = mqtt.connect("mqtt://test.mosquitto.org", {clientId:"mqtt-tester12345"});
+
+exports.client = mqtt_client;
