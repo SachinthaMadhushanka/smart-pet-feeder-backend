@@ -1,4 +1,4 @@
-const {client, petFeederIdPrev} = require("../configs/configs");
+const {client, petFeederIdPrev, resetTimer} = require("../configs/configs");
 const PetFeeder = require('../models/pet-feeder');
 const User = require('../models/user');
 const mongoose = require("mongoose");
@@ -12,13 +12,14 @@ const {use} = require("express/lib/router");
     }
  */
 exports.onReceivePetFeederStatus = (data) => {
+
     let dataJson = JSON.parse(data);
 
     PetFeeder.findById(petFeederIdPrev + dataJson.petFeederId)
         .then(petFeeder => {
 
             petFeeder.status = true;
-
+            resetTimer();
             return petFeeder.save();
         })
         .catch(err => {
@@ -87,7 +88,6 @@ exports.onReceiveScheduleStatus = (data) => {
 
             if (dataJson.status) {
                 petFeeder.lastFeedTime = feed_time;
-                console.log(petFeeder.lastFeedTime);
 
             }
 
@@ -104,7 +104,7 @@ exports.onReceiveScheduleStatus = (data) => {
 // PetFeeder/FillFoods
 /*
     {
-        "petFeederId": "ffffffffffffff0123456789"
+        "petFeederId": "0123456789"
     }
  */
 exports.onReceiveFillFoods = (data) => {
