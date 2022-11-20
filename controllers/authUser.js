@@ -460,6 +460,11 @@ exports.postSchedule = (req, res, next) => {
 }
 
 
+exports.askImage = (req, res, next) => {
+    mqttFunctions.publishAskImage();
+
+}
+
 exports.postDeleteSchedule = (req, res, next) => {
 
     let scheduleId = req.body._id;

@@ -71,6 +71,8 @@ router.post('/post_schedules' ,[
 
 router.post('/delete_schedule',isAuthUser,userControllers.postDeleteSchedule);
 
+
+
 router.post('/post_feedback',
     [
         body('title').trim().not().isEmpty().withMessage("title Cannot be empty"),
@@ -85,6 +87,8 @@ router.post('/verifyLogin',isAuth2faUser,userControllers.postVerifyLogin);
 
 
 //=================================================== GET ==============================================================
+
+router.get('/get_image',isAuthUser,userControllers.askImage);
 
 
 router.get('/get_status',isAuthUser,userControllers.getStatus);

@@ -161,3 +161,18 @@ exports.publishFeedNow = (schedule) => {
     }
 }
 
+
+/*
+
+    {
+        "schedule_id":"6373a34e11a2c0fefbe94115",
+        "date_time":"2022-11-15T14:33:50.353Z"
+    }
+
+ */
+exports.publishAskImage = () => {
+
+    if (client.connected === true) {
+        client.publish('PetFeeder/SeePet', "{}", {retain: false, qos:1});
+    }
+}
