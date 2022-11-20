@@ -3,6 +3,7 @@ const PetFeeder = require('../models/pet-feeder');
 const User = require('../models/user');
 const mongoose = require("mongoose");
 const {use} = require("express/lib/router");
+const {getCorrectDate} = require("./DateOperations");
 
 
 // PetFeeder/Status
@@ -142,7 +143,12 @@ exports.onReceiveFillFoods = (data) => {
 
 
 exports.publishSchedules = (schedules) => {
-    client.publish('PetFeeder/Schedules', schedules, {retain: false, qos:1});
+
+    for (let i = 0; i < schedules.length; i++) {
+        schedules[i].date_time = getCorrectDate(schedules[i].date_time);
+    }
+
+    client.publish('PetFeeder/Schedules', JSON.stringify(schedules), {retain: false, qos: 1});
 }
 
 
@@ -156,8 +162,10 @@ exports.publishSchedules = (schedules) => {
  */
 exports.publishFeedNow = (schedule) => {
 
+    schedule.date_time = getCorrectDate(schedule.date_time);
+
     if (client.connected === true) {
-        client.publish('PetFeeder/FeedNow', schedule, {retain: false, qos:1});
+        client.publish('PetFeeder/FeedNow', JSON.stringify(schedule), {retain: false, qos: 1});
     }
 }
 
@@ -173,6 +181,6 @@ exports.publishFeedNow = (schedule) => {
 exports.publishAskImage = () => {
 
     if (client.connected === true) {
-        client.publish('PetFeeder/SeePet', "{}", {retain: false, qos:1});
+        client.publish('PetFeeder/SeePet', "{}", {retain: false, qos: 1});
     }
 }

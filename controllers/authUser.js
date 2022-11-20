@@ -440,7 +440,7 @@ exports.postSchedule = (req, res, next) => {
                         required_schedules.push(temp);
                     }
                 }
-                mqttFunctions.publishSchedules(JSON.stringify(required_schedules));
+                mqttFunctions.publishSchedules(required_schedules);
 
             } else {
 
@@ -448,7 +448,7 @@ exports.postSchedule = (req, res, next) => {
                     'schedule_id': scheduleId.toString(),
                     'date_time': req.body.date_time,
                 }
-                mqttFunctions.publishFeedNow(JSON.stringify(temp));
+                mqttFunctions.publishFeedNow(temp);
 
             }
 
@@ -510,7 +510,7 @@ exports.postDeleteSchedule = (req, res, next) => {
                     required_schedules.push(temp);
                 }
             }
-            mqttFunctions.publishSchedules(JSON.stringify(required_schedules));
+            mqttFunctions.publishSchedules(required_schedules);
 
         })
         .catch(err => {

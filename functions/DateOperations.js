@@ -1,5 +1,5 @@
 exports.extractDate = (date) => {
-    let correct_date = new Date(new Date(date).getTime() + 5.5* 3600 * 1000);
+    let correct_date = new Date(new Date(date).getTime() + 5.5 * 3600 * 1000);
 
     let d = new Date(correct_date),
         month = "" + (d.getMonth() + 1),
@@ -13,7 +13,7 @@ exports.extractDate = (date) => {
 };
 
 exports.extractTime = (date) => {
-    let time = new Date(new Date(date).getTime() + 5.5* 3600 * 1000);
+    let time = new Date(new Date(date).getTime() + 5.5 * 3600 * 1000);
 
 
     let hour = time.getHours();
@@ -23,4 +23,9 @@ exports.extractTime = (date) => {
     if (hour < 10) hour = "0" + hour;
 
     return hour + ":" + min;
+}
+
+
+exports.getCorrectDate = (date) => {
+    return new Date(new Date(date).getTime() + 5.5 * 3600 * 1000);
 }
