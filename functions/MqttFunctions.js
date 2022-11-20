@@ -16,6 +16,7 @@ exports.onReceivePetFeederStatus = (data) => {
 
     let dataJson = JSON.parse(data);
 
+    // PetFeeder.findById(petFeederIdPrev + dataJson.petFeederId)
     PetFeeder.findById(petFeederIdPrev + dataJson.petFeederId)
         .then(petFeeder => {
 
