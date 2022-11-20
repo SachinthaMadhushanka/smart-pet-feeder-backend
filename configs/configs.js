@@ -21,12 +21,13 @@ let mqtt_client = mqtt.connect("mqtt://test.mosquitto.org", {clientId: "mqtt-tes
 exports.client = mqtt_client;
 
 let petFeederId = "0123456789";
-let timout = 2;
+let timout = 3;
 const resetPetFeederON = () => {
     PetFeeder.findById("ffffffffffffff" + petFeederId)
         .then(petFeeder => {
 
-            petFeeder.status = false;
+            // Change this later to false
+            petFeeder.status = true;
 
             return petFeeder.save();
         })
