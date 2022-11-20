@@ -463,6 +463,9 @@ exports.postSchedule = (req, res, next) => {
 exports.askImage = (req, res, next) => {
     mqttFunctions.publishAskImage();
 
+    res.status(200).json({message: "Requested For an Image"});
+
+
 }
 
 exports.postDeleteSchedule = (req, res, next) => {
