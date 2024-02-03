@@ -61,7 +61,7 @@ exports.signUp = (req, res, next) => {
                 password: hashedPw,
                 name: name,
                 mobileNumber: phoneNumber,
-                isActive: false
+                isActive: true // Set it to false(That is the correct way. Otherwise user dont need to verify)
             });
             return user.save();
         })
