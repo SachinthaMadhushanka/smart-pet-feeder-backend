@@ -13,8 +13,8 @@ exports.mqtt_options = {
 
 exports.petFeederIdPrev = "ffffffffffffff";
 
-// exports.API_URL = "http://localhost:8000:";
-exports.API_URL = "https://smart-pet-feeder-backend.herokuapp.com";
+exports.API_URL = process.env.URL || "http://localhost:8000:";
+// exports.API_URL = "https://smart-pet-feeder-backend.herokuapp.com";
 
 let mqtt_client = mqtt.connect("mqtt://test.mosquitto.org", {clientId: "mqtt-tester89667"});
 
