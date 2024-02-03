@@ -95,15 +95,16 @@ exports.signUp = (req, res, next) => {
             loadUser = result;
 
             const link = configs.API_URL + '/auth/user/verify_account/' + result.token;
+            console.log(link)
             return ejs.renderFile(path.join(__dirname, '..', '/views/email.ejs'), {
                 "LINK": link,
                 "OTP": "",
                 "NAME": result.name,
                 "SIGNUP": true
             });
-
         })
         .then(email => {
+            console.log("Link generated");
             let transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -122,11 +123,12 @@ exports.signUp = (req, res, next) => {
             return transporter.sendMail(mailOptions);
         })
         .then(result => {
-
+            console.log("Mail sent");
 
             res.status(200).json({message: "user saved. Enter OTP to verify"});
         })
         .catch(err => {
+            console.log(err);
             if (!err.statusCode) {
                 err.statusCode = 500;
             }
